@@ -172,7 +172,6 @@ a{color:var(--accent)}
     </div>
     <div class="status" id="status"></div>
     <div class="periods" role="group" aria-label="Период">
-      <button id="p1" data-h="1" aria-pressed="false">60 мин</button>
       <button id="p12" data-h="12" aria-pressed="false">12 ч</button>
       <button id="p24" data-h="24" aria-pressed="true">24 ч</button>
       <button id="p7" data-h="168" aria-pressed="false">7 дней</button>
@@ -201,8 +200,8 @@ const TILES=[
 const ONAME=Object.fromEntries(TILES.map(t=>[t[0],t[1]]));
 
 let S={h:24,type:null,obl:null,track:null,rep:null,days:{},reports:{},ballistic:[],meta:null,ready:false};
-try{const h=parseInt(localStorage.getItem("kp_h"));if([1,12,24,168,720].includes(h))S.h=h}catch(e){}
-const hashH={"#h1":1,"#h12":12,"#h24":24,"#d7":168,"#d30":720};
+try{const h=parseInt(localStorage.getItem("kp_h"));if([12,24,168,720].includes(h))S.h=h}catch(e){}
+const hashH={"#h12":12,"#h24":24,"#d7":168,"#d30":720};
 if(hashH[location.hash])S.h=hashH[location.hash];
 
 const $=s=>document.querySelector(s);
@@ -217,7 +216,7 @@ const nf=n=>n==null?"—":n.toLocaleString("ru-RU");
 
 document.querySelectorAll(".periods button").forEach(b=>b.addEventListener("click",()=>{
   S.h=+b.dataset.h;S.track=null;try{localStorage.setItem("kp_h",S.h)}catch(e){}
-  history.replaceState(null,"",{1:"#h1",12:"#h12",24:"#h24",168:"#d7",720:"#d30"}[S.h]);render();}));
+  history.replaceState(null,"",{12:"#h12",24:"#h24",168:"#d7",720:"#d30"}[S.h]);render();}));
 addEventListener("hashchange",()=>{if(hashH[location.hash]){S.h=hashH[location.hash];render()}});
 
 // ---------- дані
@@ -264,7 +263,7 @@ function render(){
       <div id="oblfeed"></div></section>
     <section class="panel c12"><div class="ph"><h2>Сейчас в небе</h2><span class="sub">цели за последние 60 мин · нажмите строку, чтобы найти область на карте</span></div><div id="now" class="now wide"></div></section>
     ${long?`<section class="panel c12"><div class="ph"><h2>События по дням</h2><span class="sub">целей по типу (цель учтена в день, когда о ней были оповещения)</span></div><div id="timeline" class="chart"></div><div class="lg" id="tlleg"></div></section>`:""}
-    ${S.h===1?"":`<section class="panel c12"><div class="ph"><h2>Официальные итоги</h2><span class="sub">сводки Воздушных сил, предварительные данные · выходят утром (за ночь) и вечером (за день)</span></div>${kpiHTML(win,prev)}<div id="reports"></div></section>`}
+    <section class="panel c12"><div class="ph"><h2>Официальные итоги</h2><span class="sub">сводки Воздушных сил, предварительные данные · выходят утром (за ночь) и вечером (за день)</span></div>${kpiHTML(win,prev)}<div id="reports"></div></section>
     ${long?`<section class="panel c7"><div class="ph"><h2>Когда атакуют</h2><span class="sub">целей: час суток × день (киевское время)</span></div><div id="heat" class="chart"></div></section>
     <section class="panel c5"><div class="ph"><h2>Районы пусков</h2><span class="sub">сколько сводок упоминают район</span></div><div id="launch"></div></section>`:""}
     <section class="panel c12"><details><summary>Все оповещения за период (${nf(ev.length)})<span class="sub" id="unpc"></span></summary><div class="posts" id="posts"></div></details></section>
@@ -273,7 +272,7 @@ function render(){
   renderNow(evAll);
   renderMap(ev,tracks,win);
   if(long)renderTimeline(ev,win,long);
-  if(S.h!==1)renderReports(win,long);
+  renderReports(win,long);
   if(long){renderHeat(ev,win);renderLaunch(win)}
   renderPosts(evF,win);
 }
@@ -286,7 +285,7 @@ function kpiHTML(win,prev){
     ["Перехват",pct(a.down,a.att),pct(b.down,b.att),"good","%"],
     ["Доля реактивных БпЛА",pct(a.jet,a.uav),pct(b.jet,b.uav),"bad","%"],
     ["Попадания, локаций",a.hitsN?a.hits:null,b.hitsN?b.hits:null,"bad"]];
-  const lbl={1:"пред. час",12:"пред. 12 ч",24:"пред. сутки",168:"пред. 7 дней",720:"пред. 30 дней"}[S.h];
+  const lbl={12:"пред. 12 ч",24:"пред. сутки",168:"пред. 7 дней",720:"пред. 30 дней"}[S.h];
   return `<div class="kpis">${items.map(([l,v,p,pol,u])=>{
     let d="";
     if(v!=null&&p!=null&&p!==0){const df=v-p;const cls=df===0?"":pol==="neutral"?"":pol==="bad"?(df>0?"up":"dn"):(df>0?"upg":"dng");
