@@ -1,3 +1,4 @@
 _site/
 state/
 __pycache__/
+.playwright-mcp/
